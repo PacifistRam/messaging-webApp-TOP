@@ -1,5 +1,5 @@
 import { createBrowserRouter, Link, RouterProvider } from "react-router-dom";
-import MainLayout from "./assets/layout/MainLayout";
+import MainLayout from "./layout/MainLayout";
 import LogIn from "./pages/LogIn";
 import ChatPage from "./pages/ChatPage";
 import SignUp from "./pages/SignUp";

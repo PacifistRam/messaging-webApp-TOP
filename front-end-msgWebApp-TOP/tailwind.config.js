@@ -5,7 +5,11 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      gridTemplateRows: {
+        pageLayout: 'auto 1fr auto'
+      }
+    },
   },
   plugins: [
     require('daisyui'),
