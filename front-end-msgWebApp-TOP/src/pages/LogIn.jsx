@@ -7,7 +7,10 @@ import { IoKey } from "react-icons/io5";
 import { AuthContext } from "../layout/MainLayout";
 
 const LogIn = () => {
-  const { setToken, token } = useContext(AuthContext)
+  const { setToken, user, userLoading } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
   const [formField, setFormField] = useState({
     email: "",
     password: "",
@@ -15,14 +18,10 @@ const LogIn = () => {
 
   const navigate = useNavigate();
   useEffect(() => {
-    if (token) {
+    if (user.isAuthenticated) {
       navigate("/chat-app");
     }
-  }, [token, navigate]);
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [message, setMessage] = useState(null);
+  }, [user.isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,6 +61,7 @@ const LogIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setToken(null);
     if (
       !validateEmail(formField.email) ||
       !validatePassword(formField.password)
@@ -69,10 +69,10 @@ const LogIn = () => {
       return; // Don't proceed if there are validation errors
     }
     setError({ email: null, password: null });
+    setLoading(true);
 
     try {
-      setLoading(true);
-      const getToken = await fetch("http://localhost:5000/auth/log-in", {
+      const response = await fetch("http://localhost:5000/auth/log-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -80,17 +80,17 @@ const LogIn = () => {
           password: formField.password,
         }),
       });
-      const tokenData = await getToken.json();
-      if (getToken.ok) {
-        if (tokenData.message === "authentication successful")
-          setToken(tokenData.token);
-        localStorage.setItem("token", tokenData.token)
-        console.log(token);
-        setLoading(true);
-        navigate("/chat-app");
+      const userData = await response.json();
+
+      if (response.ok) {
+        setToken(userData.token);
+        localStorage.setItem("token", userData.token);
+        setLoading(false);
+        // navigate("/chat-app");
       } else {
-        setMessage(tokenData.message);
+        setMessage(userData.message);
         setFormField((prevField) => ({ ...prevField, password: "" }));
+        localStorage.removeItem("token");
         setLoading(false);
       }
     } catch (error) {
@@ -99,6 +99,17 @@ const LogIn = () => {
       setLoading(false);
     }
   };
+
+  if (userLoading ) {
+    return (
+      <div className="h-full flex justify-center items-center text-3xl">
+        <p className=" flex gap-1 items-center">
+          <span>Verifying user</span>
+          <span className="loading loading-dots loading-lg"></span>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col items-center gap-4 mt-9">
@@ -121,7 +132,7 @@ const LogIn = () => {
             value={formField.email}
             onChange={handleChange}
             onBlur={handleBlur}
-            className="grow"
+            className="grow bg-transparent"
           />
         </label>
         <label

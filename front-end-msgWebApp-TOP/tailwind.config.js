@@ -14,5 +14,8 @@ export default {
   plugins: [
     require('daisyui'),
   ],
+  daisyui:{
+    themes: ["forest", "dark", "aqua",]
+  }
 }
 

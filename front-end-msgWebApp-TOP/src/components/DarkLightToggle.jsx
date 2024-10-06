@@ -7,7 +7,7 @@ const DarkLightToggle = () => {
   );
 
   useEffect(() => {
-    const theme = darkMode ? "dark" : "light";
+    const theme = darkMode ? "forest" : "aqua";
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("darkMode", darkMode);
   }, [darkMode]);

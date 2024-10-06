@@ -3,6 +3,8 @@ import MainLayout from "./layout/MainLayout";
 import LogIn from "./pages/LogIn";
 import ChatPage from "./pages/ChatPage";
 import SignUp from "./pages/SignUp";
+import ChatHomePage from "./pages/ChatHomePage";
+import ChatUserPage from "./pages/ChatUserPage";
 
 const router = createBrowserRouter([
   {
@@ -36,7 +38,7 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <div className="max-w-[1440px] mx-auto">
+    <div className="max-w-[1440px] mx-auto ">
       <RouterProvider router={router} />
     </div>
   );

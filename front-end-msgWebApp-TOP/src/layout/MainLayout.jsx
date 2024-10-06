@@ -5,16 +5,21 @@ import { useState, useEffect, createContext } from "react";
 // component imports
 import Navbar from "../components/Navbar";
 
-// custom hook import
-import useVerifyUser from "../customHooks/useVerifyUser";
-
-export const AuthContext = createContext();
+export const AuthContext = createContext({
+  token: null,
+  user: {
+    userId: "",
+    name: "",
+    profilePic: "",
+    isAuthenticated: false,
+  },
+  userLoading: true,
+  userError: null,
+});
 
 const MainLayout = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [token, setToken] = useState(localStorage.getItem("token") || "");
-
-  const {verifiedUser, loading, error} = useVerifyUser(token)
 
   const [user, setUser] = useState({
     userId: "",
@@ -22,39 +27,75 @@ const MainLayout = () => {
     profilePic: "",
     isAuthenticated: false,
   });
+  const [userError, setUserError] = useState(null);
+  const [userLoading, setUserLoading] = useState(false);
 
-  useEffect(()=>{
-    if(verifiedUser){
-      setUser({
-        userId: verifiedUser.id,
-        name: verifiedUser.name,
-        profilePic: verifiedUser.profilePic,
-        isAuthenticated: true
-      })
-      localStorage.setItem("token", token)
-    }else {
-      setUser({
-        userId: "",
-        name: "",
-        profilePic: "",
-        isAuthenticated: false
-      })
-      localStorage.removeItem("token")
-      navigate("/")
+  const getUserName = async (token) => {
+    if (token) {
+      setUserLoading(true);
+      try {
+        const baseUrl = "http://localhost:5000/auth/verify-user";
+        const response = await fetch(baseUrl, {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const userData = await response.json();
+        if (response.ok) {
+          setUser({
+            userId: userData.user.id,
+            name: userData.user.name,
+            profilePic: userData.user.profilePic,
+            isAuthenticated: true,
+          });
+          setUserLoading(false);
+        } else {
+          console.log("failed to authenticate");
+          setUserError("verification failed");
+          setUserLoading(false);
+          localStorage.removeItem("token");
+        }
+      } catch (error) {
+        if (error.name === "TypeError") {
+          setUserError(
+            "The server is currently unavailable. Please try again later"
+          );
+        } else {
+          setUserError("Network error please try later");
+        }
+        localStorage.removeItem("token");
+        setUserLoading(false);
+      }
     }
+  };
 
-  },[token])
+  const handleLogOut = () => {
+    setUser({
+      userId: "",
+      name: "",
+      profilePic: "",
+      isAuthenticated: false,
+    });
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
-
-
+  useEffect(() => {
+    if (token) {
+      getUserName(token);
+    }
+  }, [token]);
 
   return (
     <div className="grid grid-rows-pageLayout min-h-screen">
-      <AuthContext.Provider value={{ token, setToken, user }}>
-      <Navbar />
-      <Outlet />
-      <p>Footer</p>
-      </AuthContext.Provider >
+      <AuthContext.Provider
+        value={{ token, setToken, user, userLoading, userError }}
+      >
+        <Navbar handleLogOut={handleLogOut} />
+          <div className="h-full ">
+            <Outlet />
+          </div>
+        <p>Footer</p>
+      </AuthContext.Provider>
     </div>
   );
 };
