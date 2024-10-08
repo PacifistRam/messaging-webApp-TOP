@@ -1,16 +1,35 @@
-import { useContext, useEffect, memo } from "react";
+import { useContext, useEffect, memo, useState } from "react";
 
-// authcontext Import
+// authContext Import
 import { AuthContext } from "../layout/MainLayout";
+import { RefetchContext } from "../pages/ChatPage";
+
 // custom hook import
 import useChatList from "../customHooks/useChatList";
 
 const ChatListComponent = memo(({
   handleOpenChat,
-  receiver,
 }) => {
   const { token } = useContext(AuthContext);
-  const { chatList, loading, error } = useChatList(token,receiver);
+  const { reFetch, setReFetch, currentReceiver } = useContext(RefetchContext);
+  const [ shouldReFetch, setShouldReFetch ] = useState(true)
+  const { chatList, loading, error } = useChatList(token,  shouldReFetch);
+
+  useEffect(() => {
+    if(chatList) {
+      setReFetch(false)
+      setShouldReFetch(false)
+    }
+  },[chatList, setReFetch])
+
+  useEffect(() => {
+   if(reFetch && !chatList.some(chat => chat.id === currentReceiver)) {
+    setShouldReFetch(true)
+   } else {
+    setReFetch(false)
+   }
+  }, [currentReceiver, reFetch]);
+
   if (loading) {
     return (
       <div className="h-full flex justify-center  gap-02 pt-8 font-bold">
@@ -22,7 +41,7 @@ const ChatListComponent = memo(({
 
   return (
     <div>
-      {console.log("chatList Rendered")}
+      
       {chatList.length ? (
         <ul className="grid gap-5">
           {chatList.map((chat) => (
@@ -30,7 +49,7 @@ const ChatListComponent = memo(({
               <button
                 onClick={() => handleOpenChat(chat.id)}
                 className={`btn hover:text-primary-content hover:bg-accent w-full px-2  justify-start ${
-                  receiver === chat.id ? "btn-primary  " : "btn-ghost"
+                  currentReceiver === chat.id ? "btn-primary  " : "btn-ghost"
                 } `}
               >
                 <div className="avatar placeholder">

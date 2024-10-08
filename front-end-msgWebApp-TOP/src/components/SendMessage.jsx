@@ -2,9 +2,11 @@ import { useContext, useState } from "react";
 import { RiMailSendFill } from "react-icons/ri";
 
 import { AuthContext } from "../layout/MainLayout";
+import { RefetchContext } from "../pages/ChatPage";
 
-const SendMessage = ({ receiverId, refetchMsgs }) => {
+const SendMessage = () => {
   const { token } = useContext(AuthContext);
+  const { handleRefetch,  currentReceiver} = useContext(RefetchContext)
   const [msgField, setMsgField] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +16,7 @@ const SendMessage = ({ receiverId, refetchMsgs }) => {
 
   const sendChat = async (e) => {
     e.preventDefault();
-    if (!msgField) {
+    if (!msgField || loading ) {
       return;
     }
     try {
@@ -26,16 +28,16 @@ const SendMessage = ({ receiverId, refetchMsgs }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          receiverId,
+          receiverId:  currentReceiver,
           content: msgField,
         }),
       });
       const msgCreated = await response.json();
       if (response.ok) {
-        setMsgField("")
-        refetchMsgs();
-      }else {
-        console.log("Didnt send the msgs")
+        setMsgField("");
+        handleRefetch();
+      } else {
+        console.log("didn't send the msgs");
       }
     } catch (error) {
       console.error(error);
@@ -47,7 +49,7 @@ const SendMessage = ({ receiverId, refetchMsgs }) => {
   return (
     <form
       onSubmit={sendChat}
-      className="w-full grid grid-cols-12 gap-1 justify-center items-center mt-2"
+      className="w-full grid grid-cols-12 gap-1 justify-center items-center mt-2 "
     >
       <input
         type="text"
@@ -55,11 +57,11 @@ const SendMessage = ({ receiverId, refetchMsgs }) => {
         onChange={handleChange}
         value={msgField}
         autoFocus
-        className="input input-primary col-span-11 focus-visible:outline-accent rounded-3xl"
+        className={`input input-primary col-span-11 focus-visible:outline-accent rounded-3xl ${loading? 'input-disabled' : ''}`}
       />
       <button
         type="submit"
-        className="col-span-1 place-self-center btn text-xl bg-primary text-primary-content hover:text-accent"
+        className={`col-span-1 place-self-center btn text-xl bg-primary text-primary-content hover:text-accent  ${loading? 'btn-disabled' : ''}`}
       >
         {loading ? (
           <span className="loading loading-spinner loading-md"></span>

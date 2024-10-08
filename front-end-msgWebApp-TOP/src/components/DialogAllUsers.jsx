@@ -1,7 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 
+import { AuthContext } from "../layout/MainLayout";
+
 const DialogAllUsers = ({ usersList, modalIsOpen, toggleModal,  handleOpenChat }) => {
+  const { user } = useContext(AuthContext)
   useEffect(() => {
     if (modalIsOpen) {
       modalRef.current.showModal();
@@ -32,7 +35,7 @@ const DialogAllUsers = ({ usersList, modalIsOpen, toggleModal,  handleOpenChat }
           </div>
           {usersList.length ? (
             <ul className="grid gap-5 p-5">
-              {usersList.map((user) => (
+              {usersList.filter(currentUser => currentUser.id !== user.userId).map((user) => (
                 <li key={user.id}>
                   <button
                     onClick={() => handleUserClick(user.id)}

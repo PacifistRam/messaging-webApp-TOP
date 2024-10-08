@@ -3,7 +3,7 @@ import DarkLightToggle from "./DarkLightToggle";
 import { AuthContext } from "../layout/MainLayout";
 import { useContext } from "react";
 
-const Navbar = ({handleLogOut}) => {
+const Navbar = ({ handleLogOut }) => {
   const { user } = useContext(AuthContext);
   return (
     <div className="navbar bg-neutral text-neutral-content rounded-sm px-4 mb-4">
@@ -18,15 +18,23 @@ const Navbar = ({handleLogOut}) => {
                 {user.name}
               </li>
               <li>
-              <button
-              onClick={handleLogOut}
-               className="btn btn-outline btn-sm border-accent font-bold text-error text-base ">Log-Out</button>
+                <button
+                  onClick={handleLogOut}
+                  className="btn btn-outline btn-sm border-accent font-bold text-error text-base "
+                >
+                  Log-Out
+                </button>
               </li>
             </>
           ) : (
-            <li className="text-neutral-content">
-             <Link to={"/sign-up"}>Sign-Up</Link>
-            </li>
+            <>
+              <li className="text-neutral-content">
+                <Link to={"/"}>Log-in</Link>
+              </li>
+              <li className="text-neutral-content">
+                <Link to={"/sign-up"}>Sign-Up</Link>
+              </li>
+            </>
           )}
         </ul>
         <DarkLightToggle />

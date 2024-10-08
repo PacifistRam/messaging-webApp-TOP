@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, createContext, useEffect, useState } from "react";
 import { AuthContext } from "../layout/MainLayout";
 import { Outlet, useNavigate } from "react-router-dom";
 import ChatListComponent from "../components/ChatListComponent";
@@ -6,20 +6,17 @@ import ChatHomePage from "./ChatHomePage";
 import ChatListHeader from "../components/ChatListHeader";
 import ChatUserPage from "./ChatUserPage";
 
-
+export const RefetchContext = createContext();
 
 const ChatPage = () => {
   const navigate = useNavigate();
   const { user, token } = useContext(AuthContext);
   const [currentReceiver, setCurrentReceiver] = useState(null)
   
-  const[ reFetchConvo, setReFetchConvo ] = useState(true)
+  const[ reFetch, setReFetch ] = useState(true)
 
-  const [ reFetchChatList, setReFetchChatList ] = useState(true)
-
-  const handleReFetchList = (currentReceiver) => {
-
-  }
+  
+  
   
   
   useEffect(() => {
@@ -31,7 +28,7 @@ const ChatPage = () => {
   
 
   const handleRefetch = () => {
-    setReFetchConvo(true)
+    setReFetch(true)
   }
   
   
@@ -46,28 +43,26 @@ const ChatPage = () => {
   },[currentReceiver])
 
   return (
+    <RefetchContext.Provider value ={{reFetch, setReFetch, handleRefetch, currentReceiver} }>
     <div className="grid grid-cols-12 gap-6 h-full ">
       <aside className="col-span-3 border border-neutral rounded-3xl px-3 py-3">
         <div className="grid gap-4">
           <ChatListHeader handleOpenChat={openChat} />
           <ChatListComponent 
-            handleOpenChat={openChat}
-            receiver = {currentReceiver} />
+            handleOpenChat={openChat} />
         </div>
       </aside>
       <div className="col-span-9 border border-neutral rounded-3xl px-3 py-3 w-full overflow-auto">
         {currentReceiver ? (
           <ChatUserPage
            receiverId={ currentReceiver}
-           reFetchConvo = {reFetchConvo}
-           setReFetchConvo = {setReFetchConvo}
-           handleRefetch = { handleRefetch}
             />
         ) : (
           <ChatHomePage />
         )}
       </div>
     </div>
+    </RefetchContext.Provider>
   );
 };
 

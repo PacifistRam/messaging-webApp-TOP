@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useChatList = (token, receiver) => {
+const useChatList = (token,  reFetch) => {
     const [chatList, setChatList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -35,12 +35,12 @@ const useChatList = (token, receiver) => {
                 setLoading(false)
             }
         }
-        if(token  ) {
+        if(token &&  reFetch  ) {
             fetchChatList()
         }
 
             
-    }, [token])
+    }, [ token, reFetch])
 
     return { chatList, loading, error}
 }
