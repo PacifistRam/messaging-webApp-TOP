@@ -31,12 +31,13 @@ const SignUp = () => {
             password
           }),
         });
-        const userCreated = response.json()
+        const userCreated = await response.json()
         if(response.ok){
           reset()
           navigate("/")
         }else {
-          setServerError(userCreated.message || "error creating new account")
+          console.log(userCreated)
+          setServerError(userCreated.message || "error in creating user please try again" )
         }
       } catch (error) {
         setServerError("Server Error please try again later");
@@ -51,7 +52,7 @@ const SignUp = () => {
   return (
     <div className=" flex flex-col h-full gap-4 px-2 py-4">
       <h1 className="text-3xl text-center font-extrabold">Sign-Up</h1>
-      {serverError && <div className="bg-neutral"> <p className="text-error text-sm px-2">{serverError}</p></div>}
+      {serverError && <div className="bg-neutral max-w-[600px] min-h-11 rounded-md shadow-md self-center w-full "> <p className="text-error text-center font-semibold text-md px-2 py-3 ">{serverError}</p></div>}
       <form
       onSubmit={handleSubmit(onSubmit)} 
       className="grid gap-4 px-3 py-2  w-full max-w-[600px] mx-auto ">
@@ -105,7 +106,7 @@ const SignUp = () => {
             placeholder="min 6 characters"
             className="input input-bordered w-full placeholder:text-md font-thin "
           />
-          {errors.name && <p className="text-sm px-2 text-error">{errors.password.message}</p>}
+          {errors.password && <p className="text-sm px-2 text-error">{errors.password.message}</p>}
         </div>
         {/* yet to implement */}
         {/* <div className="grid gap-1 text-xl font-semibold">
