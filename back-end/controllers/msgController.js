@@ -134,3 +134,21 @@ exports.getAllConversedUserForUserId = asyncHandler(async (req, res) => {
     error: error,
   });
 });
+
+
+// get all users 
+exports.getUsers = asyncHandler(async(req, res) => {
+
+  const result = await userQuery.getAllUsers();
+  if(result.success === true) {
+    return res.status(200).json({
+      users: result.data,
+      message: result.message 
+    })
+  }
+  return res.status(500).json({
+    message: result.message || "database error",
+    error: result.error
+  })
+
+})

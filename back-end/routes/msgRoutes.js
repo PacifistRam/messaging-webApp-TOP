@@ -14,7 +14,8 @@ msgRouter.get("/conversation/:receiverId", authenticateToken,  msgController.get
 // get all Conversed users for user
 msgRouter.get("/conversation-list", authenticateToken, msgController.getAllConversedUserForUserId)
 
-
+// get all users
+msgRouter.get("/all-users", authenticateToken, msgController.getUsers)
 
 
 

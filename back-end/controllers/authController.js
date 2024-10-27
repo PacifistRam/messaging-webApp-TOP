@@ -63,7 +63,6 @@ exports.postCreateAccount = [
   body("name").notEmpty().withMessage("name cannot be empty").trim().escape(),
 
   body("email")
-    .trim()
     .notEmpty()
     .withMessage("email cannot be Empty")
     .trim()
@@ -76,7 +75,11 @@ exports.postCreateAccount = [
   body("password")
   .notEmpty()
   .withMessage("password cannot be empty")
-  .trim(),
+  .trim()
+  .isLength({min: 6})
+  .withMessage("password too short, need to be minimum of 6 characters")
+  .isLength({max: 15})
+  .withMessage("password too long, password need to be less than 15 characters"),
 
   asyncHandler(async (req, res) => {
     const errors = validationResult(req);
@@ -90,11 +93,9 @@ exports.postCreateAccount = [
 
     const { name, email, profilePic, password } = req.body;
 
-    //   temperory checking for empty fields
-    if (!name && !email && !password) {
-      return res.status(402).json({
-        message: "empty fields submitted",
-      });
+    const userExists = await authQuery.getUserByEmail(email)
+    if(userExists.data) {
+      return res.status(409).json({message: "user already exists"})
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -118,3 +119,19 @@ exports.postCreateAccount = [
     });
   }),
 ];
+
+
+exports.getVerifyUser = asyncHandler(async(req,res) => {
+  const userId  = req.user.id;
+
+  const verifyUser = await authQuery.getUSerById(userId)
+  if(verifyUser.success) {
+    return res.status(200).json({
+      message: "verification successfull",
+      user: verifyUser.user
+    })
+  }
+  return res.status(400).json({
+    message: "user Not Found"
+  })
+})

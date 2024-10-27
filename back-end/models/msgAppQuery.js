@@ -71,15 +71,17 @@ const getAllUserDetailsAndMsgs = async () => {
     try {
       const conversation = await prisma.message.findMany({
         orderBy: {
-          timeStamp: "desc",
+          timeStamp: "asc",
         },
         where: {
           OR: [
             {
-              AND: [{ senderId: +senderId }, { receiverId: +receiverId }],
+              senderId: +senderId,
+              receiverId: +receiverId,
             },
             {
-              AND: [{ senderId: +receiverId }, { receiverId: +senderId }],
+              senderId: +receiverId,
+              receiverId: +senderId,
             },
           ],
         },
@@ -167,36 +169,34 @@ const deleteMsgByMsgId = async (msgId) => {
 const getUsersConversedByUserId = async (userId) => {
   try {
     const users = await prisma.user.findMany({
-      // orderBy:{
-      // messagesSent:{
-      //   timeStamp: true
-      // }
-      // },
       where: {
         OR: [
           {
             messagesSent: {
               some: {
-                receiverId: +userId,
-              },
-            },
-            messagesReceived: {
-              some: {
-                senderId: +userId,
+                receiverId: +userId, // Messages sent by the user to others
               },
             },
           },
-        ],
+          {
+            messagesReceived: {
+              some: {
+                senderId: +userId, // Messages received by the user from others
+              },
+            },
+          },
+        ], // Split the conditions into separate objects for clarity
       },
       select: {
         id: true,
         name: true,
         profilePic: true,
       },
-      orderBy:{
-        name: 'asc'
-      }
+      orderBy: {
+        name: 'asc',
+      },
     });
+
     if (users.length > 0) {
       return {
         success: true,
@@ -209,14 +209,15 @@ const getUsersConversedByUserId = async (userId) => {
       status: "No conversed user found",
     };
   } catch (error) {
-    console.error(error.message);
+    console.error("Database error: ", error.message); // Improved error logging
     return {
       success: false,
-      message: "database error",
+      message: "Database error",
       error: error.message,
     };
   }
 };
+
 
 
 

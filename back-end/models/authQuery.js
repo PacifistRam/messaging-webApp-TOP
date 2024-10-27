@@ -30,6 +30,42 @@ const getUserByEmail = async(email) => {
     }
 }
 
+// get user by id
+const getUSerById = async(id) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: +id
+            },
+            select:{
+                id:true,
+                name: true,
+                profilePic: true,
+                email: true,
+            }
+        })
+        if(user) {
+            return{
+                success: true,
+                user
+            }
+        }
+        return{
+            success: false,
+            message: "user not found"
+        }
+    } catch (error) {
+        console.error(error)
+        return{
+            success: false,
+            message: "system error",
+            error: error
+        }
+    }
+}
+
+
+
 // create new user
 const createUser = async(name, profilePic, email, password,) => {
     try {
@@ -66,5 +102,6 @@ const createUser = async(name, profilePic, email, password,) => {
 
 module.exports = {
     getUserByEmail,
+    getUSerById,
     createUser
 }
